@@ -1,0 +1,15 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true
+  },
+  "extends": "airbnb-base",
+  "rules": {
+    "no-console": "off",
+    "indent": ["error", 4],
+    "quotes": ["error", "double"],
+    "linebreak-style": ["error", "windows"],
+    "semi": ["error", "always"],
+    "func-names": ["error", "never"]
+  }
+}
