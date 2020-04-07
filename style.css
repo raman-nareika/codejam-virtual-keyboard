@@ -1,0 +1,27 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.content {
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    margin-top: 10%;
+    align-items: center;
+}
+
+.textarea,
+.keyboard {
+    width: 50%;
+    max-width: 70%;
+}
+
+.textarea {
+    resize: none;
+}
+
+.keyboard {
+    margin-top: 10px;
+    border: 1px solid #000000;
+}
