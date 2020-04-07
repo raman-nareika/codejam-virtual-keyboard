@@ -30,8 +30,8 @@ class Keyboard {
         this.keyCodes = [192, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 189, 187, 8,
                          9, 81, 87, 69, 82, 84, 89, 85, 73, 79, 80, 219, 221, 220,
                          46, 20, 65, 83, 68, 70, 71, 72, 74, 75, 76, 186, 222, 13,
-                         16, 90, 88, 67, 86, 66, 78, 77, 188, 190, 191, 38, 16, 17,
-                         91, 18, 32, 18, 37, 40, 39, 17
+                         16, 90, 88, 67, 86, 66, 78, 77, 188, 190, 191, 38, 1600, 17,
+                         91, 18, 32, 1800, 37, 40, 39, 1700
                         ];
         this.isUpper = false;
         this.activeKeyboard = this.rusUpper;
@@ -66,10 +66,14 @@ class Keyboard {
 
             key.classList.add("key");
             key.innerHTML = k;
+            key.setAttribute("data-code", this.keyCodes[idx]);
 
             switch(k) {
                 case "Backspace":
                     key.classList.add("backspace");
+                    break;
+                case "Del":
+                    key.classList.add("delete");
                     break;
                 case "Tab":
                     key.classList.add("tab");
@@ -106,6 +110,62 @@ class Keyboard {
         content.append(this.textarea, this.keyboard);
         main.append(content);
     };
+
+    addKeyListeners() {
+        const $this = this;
+        [...document.querySelectorAll(".key")].forEach(function(key) {
+            key.addEventListener("mousedown", function(e) {
+                this.classList.add("key_active");
+                const code = this.getAttribute("data-code");
+                if($this.isAlphabet(code)) {
+                    const text = code === "32" ? " " : this.textContent;
+                    $this.textarea.innerHTML += `${text} `;
+                }
+            });
+        });
+        
+        [...document.querySelectorAll(".key")].forEach(function(key) {
+            key.addEventListener("mouseup", function(e) {
+                this.classList.remove("key_active");
+            });
+        });
+
+        document.addEventListener("keydown", (e) => {
+            e.preventDefault();
+            const keyCode = this.getKeyCode(e.code, e.keyCode);
+            const key = document.querySelector(`span.key[data-code="${keyCode}"]`);
+            
+            if(key === undefined) {
+                return;
+            }
+
+            key.classList.add("key_active");
+        });
+
+        document.addEventListener("keyup", (e) => {
+            e.preventDefault();
+            const keyCode = this.getKeyCode(e.code, e.keyCode);
+            const key = document.querySelector(`span.key[data-code="${keyCode}"]`);
+            
+            if(key === undefined) {
+                return;
+            }
+
+            key.classList.remove("key_active");
+        });
+    }
+
+    getKeyCode(code, keyCode) {
+        return code.includes("Right") ? keyCode*100 : keyCode;
+    }
+
+    listen() {
+        this.addKeyListeners();
+    }
+
+    isAlphabet(keyCode) {
+        return !([8, 9, 20, 13, 16, 17, 91, 18, 37, 38, 39, 40].some(k => k == keyCode));
+    }
 }
 
 !!function() {
@@ -114,5 +174,6 @@ class Keyboard {
 
         keyboard.generateMurkup();
         keyboard.drawKeyboard();
+        keyboard.listen();
     };
 }();
