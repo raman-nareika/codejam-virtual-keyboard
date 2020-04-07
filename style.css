@@ -13,8 +13,9 @@
 
 .textarea,
 .keyboard {
-    width: 50%;
-    max-width: 70%;
+    width: 750px;
+    height: 250px;
+    padding: 10px;
 }
 
 .textarea {
@@ -22,6 +23,38 @@
 }
 
 .keyboard {
-    margin-top: 10px;
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
     border: 1px solid #000000;
+}
+
+.key {
+    display: flex;
+    justify-content: center;  
+    align-items: center;
+    font-size: 16px;
+    width: 40px;
+    height: 40px;
+    background-color: #000000;
+    border-radius: 5px;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.clearfix {
+    clear: both;
+    width: 100%;
+}
+
+.backspace,
+.capslock,
+.enter,
+.shift {
+    width: 90px;
+}
+
+.space {
+    width: 330px;
 }
