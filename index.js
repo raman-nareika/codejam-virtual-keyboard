@@ -117,10 +117,7 @@ class Keyboard {
             key.addEventListener("mousedown", function(e) {
                 this.classList.add("key_active");
                 const code = this.getAttribute("data-code");
-                if($this.isAlphabet(code)) {
-                    const text = code === "32" ? " " : this.textContent;
-                    $this.textarea.innerHTML += `${text} `;
-                }
+                $this.print(code, this.textContent);
             });
         });
         
@@ -130,33 +127,44 @@ class Keyboard {
             });
         });
 
-        document.addEventListener("keydown", (e) => {
-            e.preventDefault();
-            const keyCode = this.getKeyCode(e.code, e.keyCode);
-            const key = document.querySelector(`span.key[data-code="${keyCode}"]`);
-            
-            if(key === undefined) {
-                return;
-            }
-
-            key.classList.add("key_active");
-        });
-
-        document.addEventListener("keyup", (e) => {
-            e.preventDefault();
-            const keyCode = this.getKeyCode(e.code, e.keyCode);
-            const key = document.querySelector(`span.key[data-code="${keyCode}"]`);
-            
-            if(key === undefined) {
-                return;
-            }
-
-            key.classList.remove("key_active");
-        });
+        document.addEventListener("keydown", e => this.keyDown(e));
+        document.addEventListener("keyup", e => this.keyUp(e));
     }
 
     getKeyCode(code, keyCode) {
         return code.includes("Right") ? keyCode*100 : keyCode;
+    }
+
+    print(code, textContent) {
+        if(this.isAlphabet(code)) {
+            const text = code.toString() === "32" ? " " : textContent;
+            this.textarea.innerHTML += `${text} `;
+        }
+    }
+
+    keyDown(e) {
+        e.preventDefault();
+        const keyCode = this.getKeyCode(e.code, e.keyCode);
+        const key = document.querySelector(`span.key[data-code="${keyCode}"]`);
+        
+        if(key === undefined) {
+            return;
+        }
+
+        key.classList.add("key_active");
+        this.print(keyCode, key.textContent);
+    }
+
+    keyUp(e) {
+        e.preventDefault();
+        const keyCode = this.getKeyCode(e.code, e.keyCode);
+        const key = document.querySelector(`span.key[data-code="${keyCode}"]`);
+        
+        if(key === undefined) {
+            return;
+        }
+
+        key.classList.remove("key_active");
     }
 
     listen() {
