@@ -36,6 +36,7 @@ class Keyboard {
                         ];
         this.supportedKeyboards = [this.rusLower, this.rusUpper, this.enLower, this.enUpper];
         this.isUpper = false;
+        this.isLShift = false;
         this.textarea = document.createElement("textarea");
         this.keyboard = document.createElement("div");
         this.pressedKeys = [];
@@ -111,39 +112,45 @@ class Keyboard {
         });
     }
 
-    generateMurkup() {
+    generateMarkup() {
         const main = document.querySelector("main");
         const content = document.createElement("div");
+        const clearBtn = document.createElement("button");
         const info = document.createElement("span");
         
         content.classList.add("content");
         this.textarea.classList.add("textarea");
         this.keyboard.classList.add("keyboard");
+        clearBtn.classList.add("clear-btn");
+        clearBtn.innerHTML = 'Очистить';
         info.classList.add("info");
         info.innerHTML = "Смена языка на LSHIFT + LALT"
 
-        content.append(this.textarea, this.keyboard, info);
+        content.append(this.textarea, this.keyboard, clearBtn, info);
         main.append(content);
     };
 
     addKeyListeners() {
+        this.bindMouseEvents();
+        document.querySelector(".clear-btn").onclick = () => this.textarea.innerHTML = "";
+        document.addEventListener("keydown", e => this.keyDown(e));
+        document.addEventListener("keyup", e => this.keyUp(e));
+    }
+
+    bindMouseEvents() {
         const $this = this;
-        [...document.querySelectorAll(".key")].forEach(function(key) {
-            key.addEventListener("mousedown", function(e) {
+        [...document.querySelectorAll(".key")].forEach(function (key) {
+            key.addEventListener("mousedown", function (e) {
                 this.classList.add("key_active");
                 const code = this.getAttribute("data-code");
                 $this.print(code, this.textContent);
             });
         });
-        
-        [...document.querySelectorAll(".key")].forEach(function(key) {
-            key.addEventListener("mouseup", function(e) {
+        [...document.querySelectorAll(".key")].forEach(function (key) {
+            key.addEventListener("mouseup", function (e) {
                 this.classList.remove("key_active");
             });
         });
-
-        document.addEventListener("keydown", e => this.keyDown(e));
-        document.addEventListener("keyup", e => this.keyUp(e));
     }
 
     getKeyCode(code, keyCode) {
@@ -153,7 +160,9 @@ class Keyboard {
     print(code, textContent) {
         if(this.isAlphabet(code)) {
             const text = code.toString() === "32" ? " " : textContent;
-            this.textarea.innerHTML += `${text} `;
+            const toUpper = this.isUpper === true ? this.isLShift === true ? false : true
+                                                  : this.isLShift === true ? true : false;
+            this.textarea.innerHTML += `${toUpper === true ? text.toUpperCase() : text.toLowerCase()} `;
         }
     }
 
@@ -174,6 +183,15 @@ class Keyboard {
             this.changeLang();
             this.saveLang();
             this.drawKeyboard();
+            this.bindMouseEvents();
+        }
+
+        if(keyCode === 20) {
+            this.changeCase();
+            this.drawKeyboard();
+            this.bindMouseEvents();
+        } else if (keyCode === 16) {
+            this.isLShift = true;
         }
     }
 
@@ -188,6 +206,10 @@ class Keyboard {
 
         key.classList.remove("key_active");
         this.pressedKeys = this.pressedKeys.filter(k => k !== keyCode);
+
+        if (keyCode === 16) {
+            this.isLShift = false;
+        }
     }
 
     listen() {
@@ -203,7 +225,7 @@ class Keyboard {
     window.onload = function() {
         const keyboard = new Keyboard();
 
-        keyboard.generateMurkup();
+        keyboard.generateMarkup();
         keyboard.drawKeyboard();
         keyboard.listen();
     };

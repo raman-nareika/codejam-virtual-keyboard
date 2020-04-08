@@ -49,6 +49,8 @@
 .key_active {
     background-color: #bcbfc3;
     border-bottom: 0;
+    box-shadow: 0 0 10px 2px #868683;
+    z-index: 2;
 }
 
 .clearfix {
@@ -65,4 +67,10 @@
 
 .space {
     width: 330px;
+}
+
+.clear-btn {
+    margin-bottom: 10px;
+    border-radius: 5px;
+    padding: 5px 10px;
 }
