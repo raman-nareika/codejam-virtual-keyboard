@@ -2,6 +2,7 @@ class Keyboard {
     constructor() {
         this.rusLang = "RUS";
         this.enLang = "ENG";
+        this.supportedLangs = [this.rusLang, this.enLang];
         this.language = localStorage.getItem("k-lang") || this.rusLang;
         this.rusLower = ["ё", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "Backspace",
             "Tab", "й", "ц", "у", "к", "е", "н", "г", "ш", "щ", "з", "х", "ъ", "\\", "Del",
@@ -33,24 +34,35 @@ class Keyboard {
                          16, 90, 88, 67, 86, 66, 78, 77, 188, 190, 191, 38, 1600, 17,
                          91, 18, 32, 1800, 37, 40, 39, 1700
                         ];
+        this.supportedKeyboards = [this.rusLower, this.rusUpper, this.enLower, this.enUpper];
         this.isUpper = false;
-        this.activeKeyboard = this.rusUpper;
         this.textarea = document.createElement("textarea");
         this.keyboard = document.createElement("div");
+        this.pressedKeys = [];
+    }
+
+    get activeKeyboard() {
+        const langIdx = this.supportedLangs.indexOf(this.language);
+        const keyboardIdx = langIdx*2 + Number(this.isUpper);
+
+        return this.supportedKeyboards[keyboardIdx];
     }
 
     changeLang() {
-        this.language = this.language === this.rusLang ? this.enLang : this.rusLang;
+        const idx = (this.supportedLangs.indexOf(this.language) + 1) % this.supportedLangs.length;
+        this.language = this.supportedLangs[idx];
+    }
+
+    saveLang() {
+        localStorage.setItem("k-lang", this.language);
     }
 
     changeCase() {
         this.isUpper = !this.isUpper;
-        this.activeKeyboard = this.language === this.rusLang ? this.isUpper ? this.rusUpper : this.rusLower
-                                                             : this.isUpper ? this.enUpper : this.enLower;
     }
 
     clearKeyboard() {
-        document.querySelectorAll(".keyboard span").forEach(k => k.remove());
+        this.keyboard.innerHTML = "";
     }
 
     drawKeyboard() {
@@ -102,12 +114,15 @@ class Keyboard {
     generateMurkup() {
         const main = document.querySelector("main");
         const content = document.createElement("div");
+        const info = document.createElement("span");
         
         content.classList.add("content");
         this.textarea.classList.add("textarea");
         this.keyboard.classList.add("keyboard");
+        info.classList.add("info");
+        info.innerHTML = "Смена языка на LSHIFT + LALT"
 
-        content.append(this.textarea, this.keyboard);
+        content.append(this.textarea, this.keyboard, info);
         main.append(content);
     };
 
@@ -147,12 +162,19 @@ class Keyboard {
         const keyCode = this.getKeyCode(e.code, e.keyCode);
         const key = document.querySelector(`span.key[data-code="${keyCode}"]`);
         
-        if(key === undefined) {
+        if(key === null) {
             return;
         }
 
         key.classList.add("key_active");
         this.print(keyCode, key.textContent);
+        this.pressedKeys.push(keyCode);
+
+        if(this.pressedKeys.length === 2 && this.pressedKeys.indexOf(16) !== -1 && this.pressedKeys.indexOf(18) !== -1) {
+            this.changeLang();
+            this.saveLang();
+            this.drawKeyboard();
+        }
     }
 
     keyUp(e) {
@@ -160,11 +182,12 @@ class Keyboard {
         const keyCode = this.getKeyCode(e.code, e.keyCode);
         const key = document.querySelector(`span.key[data-code="${keyCode}"]`);
         
-        if(key === undefined) {
+        if(key === null) {
             return;
         }
 
         key.classList.remove("key_active");
+        this.pressedKeys = this.pressedKeys.filter(k => k !== keyCode);
     }
 
     listen() {
@@ -172,7 +195,7 @@ class Keyboard {
     }
 
     isAlphabet(keyCode) {
-        return !([8, 9, 20, 13, 16, 17, 91, 18, 37, 38, 39, 40].some(k => k == keyCode));
+        return !([8, 9, 20, 13, 16, 17, 91, 18, 37, 38, 39, 40, 1600, 1700, 1800].some(k => k == keyCode));
     }
 }
 
